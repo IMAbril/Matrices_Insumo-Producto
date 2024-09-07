@@ -1,12 +1,13 @@
-Proyecto de Álgebra Lineal Computacional
+# Proyecto de Álgebra Lineal Computacional
 
 Este proyecto implementa y analiza el modelo de insumo-producto de Leontief utilizando álgebra lineal computacional. El trabajo incluye la resolución de sistemas de ecuaciones lineales con descomposición LU y simulación de shocks económicos en diferentes sectores.
-Estructura del Proyecto
+
+## Estructura del Proyecto
 
 El proyecto está organizado en cuatro directorios principales:
 1. /data/
 
-Este directorio contiene los datos de entrada necesarios para realizar los cálculos. Aquí se deben colocar los archivos como matrices de insumo-producto o cualquier otro archivo relevante.
+Este directorio contiene los datos de entrada necesarios para realizar los cálculos. 
 
     Contenido:
         MIP_Latinoamericana_2011.xlsx: Archivo descargado de CEPAL con flujos entre sectores de la economía de varios países.
@@ -35,7 +36,6 @@ Aquí se encuentra todo el código fuente utilizado en el proyecto. Este directo
     Contenido:
         funciones.py: Contiene las funciones principales, como la descomposición LU e inversión de matrices.
         main.py: Script principal que ejecuta el análisis general del proyecto.
-        utils.py: Funciones auxiliares o de apoyo para el cálculo.
 
 Requisitos
 
@@ -45,12 +45,6 @@ Para ejecutar este proyecto, necesitas las siguientes librerías de Python:
     pandas
     scipy
     matplotlib (opcional, para gráficos)
-
-Puedes instalarlas ejecutando el siguiente comando:
-
-bash
-
-pip install -r requirements.txt
 
 Ejecución del Proyecto
 

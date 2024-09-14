@@ -45,7 +45,7 @@ def calcularLU(A):
     ###########
     return L, U, P
 
-# Toma dos matrices L y U de nxn y devuelve la inversa de L@U. L debe ser triangular inferior y U triangular superior
+# Toma tres matrices L, U, P de nxn y devuelve la inversa de L@U o de A si PA=LU. L debe ser triangular inferior, U triangular superior y P una matriz de permutación.
 # Para resolver esto se plantea la ecuacion L@U@X = I, que se separa en L@Y = I y U@X = Y 
 def inversaLU(L, U, P=None):
     Inv = []
@@ -57,6 +57,8 @@ def inversaLU(L, U, P=None):
     Y = resolver_ecuacion(L,I,True)    # Resuelve la ecuacion L @ Y = I
     X = resolver_ecuacion(U,Y,False)    # Resuelve la ecuacion U @ X = Y hallando X que es la inversa de LU 
     Inv = X
+    if P is not None: 
+        Inv = X@P
     ###########
     return Inv
 
@@ -73,21 +75,4 @@ def resolver_ecuacion(T,S,es_inferior):
         columna_i_X = solve_triangular(T,columna_i_S,lower=es_inferior)     # Obtengo X(i)
         X.append(columna_i_X)                                               # Agrego X(i) como fila a X
     return np.array(X).transpose()                                          # Traspongo X que tenia las columnas como filas 
-
-
-
-A = np.array([[2,1,1],[4,3,3],[8,7,9]])
-A = np.array([[2,1,1],[4,-6,0],[-2,7,2]])
-A = np.array([[3,1,2],[6,3,4],[3,1,5]])
-L = calcularLU(A)[0]
-U = calcularLU(A)[1]
-P = calcularLU(A)[2]
-print("L : ",L)
-print("U : ",U)
-print("P : ",P)
-
-print("LU : ", calcularLU(A)[0] @ calcularLU(A)[1] )
-print("PA :",calcularLU(A)[2] @ A)
-
-print(inversaLU(L,U) @ (L@U))
 

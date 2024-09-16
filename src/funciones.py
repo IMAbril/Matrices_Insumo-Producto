@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.linalg import solve_triangular
+import pandas as pd
 
 """ Toma una matriz cuadrada de nxn y devuelve tres matrices matrices L,U,P de nxn tales que P@A = L@U, 
 donde L es triangular inferior y U es triangular superior"""
@@ -76,3 +77,30 @@ def resolver_ecuacion(T,S,es_inferior):
         X.append(columna_i_X)                                               # Agrego X(i) como fila a X
     return np.array(X).transpose()                                          # Traspongo X que tenia las columnas como filas 
 
+#Toma 2 strings p1 y p2 códigos de países y la ruta a un archivo .xlsx con las matrices de insumo producto
+#de latinoamérica generadas por la CEPAL.
+#Devuelve la matriz de insumo producto de p1 y p2. 
+def generar_Matriz_InsumoProducto(p1, p2, data):
+    df = pd.read_excel(data, sheet_name='LAC_IOT_2011')
+    df = df.loc[(df['Country_iso3'] == p1) | (df['Country_iso3']==p2)]
+    df = df[[col for col in df.columns if (col.startswith(p1) or col.startswith(p2) or col == 'Country_iso3' or col == 'Output')]]
+    return df
+
+#Toma 2 strings p1 y p2 códigos de país y un dataframe con la matriz insumo producto de p1 y p2
+#Devuelve las submatrices intra-regionales e inter-regionales de los coeficientes técnicos de p1 y p2
+def generar_submatrices(p1, p2, data):
+    #Genero la matriz de insumo producto intraregional del país p1
+    p1_df = data.loc[df['Country_iso3'] == p1] 
+    z_p1p1 = p1_df[[col for col in p1_df.columns if col.startswith(p1)]] 
+    producto_p1 = p1_df['Output']
+    
+    A_p1p1 = z_p1p1.div(producto_p1, axis=1)
+    
+    return z_p1p1, producto_p1, A_p1p1
+    #
+
+data = '../data/matrizlatina2011_compressed_0.xlsx'
+p1 ='SLV'
+p2= 'NIC'
+df = generar_Matriz_InsumoProducto(p1, p2, data)
+z_p1p1, producto_p1, A_p1p1 = generar_submatrices(p1, p2, df)

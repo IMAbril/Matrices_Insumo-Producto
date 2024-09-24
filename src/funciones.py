@@ -159,7 +159,7 @@ def variacion_produccion_modelo_simple(A, variacion_de_la__demanda):
 # Toma las matrices de coeficientes técnicos de dos paises y un vector con la variación de la 
 # demanda externa sobre el país p1. 
 # Devuelve un vector con la variación de la producción sobre el pais donde se produce el shock (p1). Para calcular la variación
-# se usa el modelo simple o intrarregional
+# se usa el modelo complejo o interregional
 def variacion_produccion_modelo_complejo(Ap1p1, Ap1p2, Ap2p2, Ap2p1, variacion_de_la_demanda):
     I = np.eye(40)
     L, U, P = calcularLU(I-Ap2p2)

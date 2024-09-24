@@ -95,11 +95,11 @@ def generar_submatrices(p1, p2, df):
     p1_df = df.loc[df['Country_iso3'] == p1] 
     z_p1p1 = p1_df[[col for col in p1_df.columns if col.startswith(p1)]] 
     producto_p1 = p1_df['Output'].copy()
-    producto_p1 = producto_p1.replace(0,1)
-    producto_p1_inversos = []
+    producto_p1 = producto_p1.replace(0,1) # reemplazamos los 1 por 0 para no dividir por 0 al calcular la inversa de P (matriz diagonal con la producción)
+    producto_p1_reciprocos = []
     for elem in producto_p1:
-        producto_p1_inversos.append(1/elem)
-    inversa_producto_p1 = np.diag(producto_p1_inversos)
+        producto_p1_reciprocos.append(1/elem)
+    inversa_producto_p1 = np.diag(producto_p1_reciprocos) # Armo la inversa de P que es igual a P pero con los recíprocos en la diagonal
     A_p1p1 = z_p1p1.dot(inversa_producto_p1)
     
     
@@ -108,10 +108,10 @@ def generar_submatrices(p1, p2, df):
     z_p2p2 = p2_df[[col for col in p2_df.columns if col.startswith(p2)]] 
     producto_p2 = p2_df['Output'].copy()
     producto_p2 = producto_p2.replace(0,1)
-    producto_p2_inversos = []
+    producto_p2_reciprocos = []
     for elem in producto_p2:
-        producto_p2_inversos.append(1/elem)
-    inversa_producto_p2 = np.diag(producto_p2_inversos)
+        producto_p2_reciprocos.append(1/elem)
+    inversa_producto_p2 = np.diag(producto_p2_reciprocos)
     A_p2p2 = z_p2p2.dot(inversa_producto_p2)
 
     #Genero la matriz de coeficientes técnicos interregional del país p2 con p1
@@ -136,7 +136,7 @@ def obtener_demanda(p1,p2,data):
 
 #Toma un vector con los datos de la demanda externa de un país y un diccionario con los shocks a simular en cada sector de ese país.
 #Las claves del diccionario deben ser los sectores sobre los que se va a generar el shock, y los valores el porcentaje de shock. 
-#Devuelve un vector con la variacion de la demanda.  
+#Devuelve un vector con la variacion de la demanda en los sectores tras el shock.  
 def variacion_demanda(demanda, porcentaje_sector):
     demanda = np.array(demanda,dtype=float)
     shock = np.zeros(demanda.shape[0])
@@ -147,21 +147,19 @@ def variacion_demanda(demanda, porcentaje_sector):
     return nueva_demanda - demanda
 
 
-# Toma una matriz A de coeficientes técnicos de un pais y un vector con la variación de la demanda 
-# externa sobre los sectores de ese pais.
-# Devuelve un vector con la variación de la producción sobre el pais donde se produce el shock.  
+# Toma una matriz A de coeficientes técnicos de un pais y un vector con la variación de la demanda externa sobre los sectores de ese pais.
+# Devuelve un vector con la variación de la producción por sector sobre el pais donde se produce el shock.  Para calcular la variación
+# se usa el modelo simple o intrarregional
 def variacion_produccion_modelo_simple(A, variacion_de_la__demanda):
     I = np.eye(40)
     L,U, P = calcularLU(I-A)
     inv = inversaLU(L, U, P)
-    print(inv,"u2u")
-    print()
-    print()
     return inv@ variacion_de_la__demanda
 
 # Toma las matrices de coeficientes técnicos de dos paises y un vector con la variación de la 
 # demanda externa sobre el país p1. 
-# Devuelve un vector con la variación de la producción sobre el pais donde se produce el shock (p1).
+# Devuelve un vector con la variación de la producción sobre el pais donde se produce el shock (p1). Para calcular la variación
+# se usa el modelo simple o intrarregional
 def variacion_produccion_modelo_complejo(Ap1p1, Ap1p2, Ap2p2, Ap2p1, variacion_de_la_demanda):
     I = np.eye(40)
     L, U, P = calcularLU(I-Ap2p2)
@@ -169,10 +167,10 @@ def variacion_produccion_modelo_complejo(Ap1p1, Ap1p2, Ap2p2, Ap2p1, variacion_d
     x = I- Ap1p1 - ((Ap1p2@inv)@Ap2p1)
     L,U, P = calcularLU(x)
     inv = inversaLU(L, U, P)
-    print(inv,"unu")
     return inv @ variacion_de_la_demanda
     
 data = '../data/matrizlatina2011_compressed_0.xlsx'
+
 p1 ='SLV'
 p2= 'NIC'
 df = generar_Matriz_InsumoProducto(p1, p2, data)
@@ -182,3 +180,4 @@ porcentaje_sector = {5:-10,6:3.3,7:3.3, 8:3.3}
 A_p1p1, A_p1p2, A_p2p2, A_p2p1, producto_p1, producto_p2 = generar_submatrices(p1, p2, df)
 variacion_complejo = variacion_produccion_modelo_complejo(A_p1p1, A_p1p2, A_p2p2, A_p2p1, variacion_demanda(dp1, porcentaje_sector))
 variacion_simple = variacion_produccion_modelo_simple(A_p1p1,variacion_demanda(dp1, porcentaje_sector))
+

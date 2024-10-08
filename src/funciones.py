@@ -1,9 +1,15 @@
+"""
+Grupo 10
+TP 1 Álgebra Lineal Computacional 2c 2024
+"""
+
 import numpy as np
 from scipy.linalg import solve_triangular
 import pandas as pd
+import matplotlib.pyplot as plt
 
-""" Toma una matriz cuadrada de nxn y devuelve tres matrices matrices L,U,P de nxn tales que P@A = L@U, 
-donde L es triangular inferior y U es triangular superior"""
+# Toma una matriz cuadrada de nxn y devuelve tres matrices L,U,P de nxn tales que PA = LU, 
+# donde L es triangular inferior, U es triangular superior y P es una matriz de permutación de filas que surge del pivoteo parcial
 def calcularLU(A):
     L, U = [],[]
     P = None
@@ -31,9 +37,9 @@ def calcularLU(A):
         
         
 
-        """ Recorro las filas a partir de la i+1 calculando los factores que deben multiplicar a la fila i para 
-        restarselas a estas filas (y triangular). Luego actualizo estas filas usando eso y guardo en L los 
-        multiplicadores usados. """
+        #Recorro las filas a partir de la i+1 calculando los factores que deben multiplicar a la fila i para 
+        #restarselas a estas filas (y triangular). Luego actualizo estas filas usando eso y guardo en L los 
+        #multiplicadores usados. 
         for j in range(i+1,n):                        
             multiplicador = U[j][i] / U[i][i]         
             L[j][i] = multiplicador                   
@@ -43,11 +49,11 @@ def calcularLU(A):
             nueva_fila_j = fila_j - multiplo_fila_i   
             U[j] = nueva_fila_j                       
                                    
-    ###########
+    
     return L, U, P
 
-# Toma tres matrices L, U, P de nxn y devuelve la inversa de L@U o de A si PA=LU. L debe ser triangular inferior, U triangular superior y P una matriz de permutación.
-# Para resolver esto se plantea la ecuacion L@U@X = I, que se separa en L@Y = I y U@X = Y 
+# Toma tres matrices L, U, P de nxn y devuelve la inversa de LU o de A si PA=LU. L debe ser triangular inferior, U triangular superior y P una matriz de permutación.
+# Para resolver esto se plantea la ecuacion LUX = I, que se separa en LY = I y UX = Y 
 def inversaLU(L, U, P=None):
     Inv = []
     # su código
@@ -56,16 +62,15 @@ def inversaLU(L, U, P=None):
     n = L.shape[0]
     I = np.eye(n)
     Y = resolver_ecuacion(L,I,True)    # Resuelve la ecuacion L @ Y = I
-    X = resolver_ecuacion(U,Y,False)    # Resuelve la ecuacion U @ X = Y hallando X que es la inversa de LU 
+    X = resolver_ecuacion(U,Y,False)    # Resuelve la ecuacion U @ X = Y hallando X que es la inversa de LU o de A
     Inv = X
     if P is not None: 
         Inv = X@P
-    ###########
     return Inv
 
 # Toma dos matrices T y S de nxn, y un parámetro booleano para indicar si T es triangular inferior o no.
 # La T pasada debe ser una matriz triangular 
-# Devuelve una matriz X de nxn tal que T@X = S  
+# Devuelve una matriz X de nxn tal que TX = S  
 def resolver_ecuacion(T,S,es_inferior):
     T = np.array(T,dtype=float)
     S = np.array(S,dtype=float).transpose()                                 # Traspongo S para obtener sus columnas
@@ -90,12 +95,13 @@ def generar_Matriz_InsumoProducto(p1, p2, data):
 #Toma 2 strings p1 y p2 códigos de país y un dataframe con la matriz insumo producto de p1 y p2
 #Devuelve las submatrices intra-regionales e inter-regionales de los coeficientes técnicos de p1 y p2, y matrices columna
 #con lo producido por los sectores de p1 y p2
+
 def generar_submatrices(p1, p2, df):
     #Genero la matriz de coeficientes técnicos intraregional del país p1
     p1_df = df.loc[df['Country_iso3'] == p1] 
     z_p1p1 = p1_df[[col for col in p1_df.columns if col.startswith(p1)]] 
     producto_p1 = p1_df['Output'].copy()
-    producto_p1 = producto_p1.replace(0,1) # reemplazamos los 1 por 0 para no dividir por 0 al calcular la inversa de P (matriz diagonal con la producción)
+    producto_p1 = producto_p1.replace(0,1) # Reemplazamos los 0 por 1 para no dividir por 0 al calcular la inversa de P (matriz diagonal con la producción)
     producto_p1_reciprocos = []
     for elem in producto_p1:
         producto_p1_reciprocos.append(1/elem)
@@ -126,13 +132,20 @@ def generar_submatrices(p1, p2, df):
     
 #Toma 2 strings p1 y p2 códigos de país y un dataframe con la matriz insumo producto de p1 y p2
 #Devuelve los vectores de demanda externa de los países p1 y p2 
-def obtener_demanda(p1,p2,data):
+def obtener_demanda_modelo_complejo(p1,p2,data):
     A_p1p1, A_p1p2, A_p2p2, A_p2p1, producto_p1, producto_p2 = generar_submatrices(p1, p2, data)
     I = np.eye(40)
     dp1 = (I-A_p1p1)@producto_p1 - A_p1p2@producto_p2
     dp2 = (-A_p2p1)@producto_p1 + (I-A_p2p2)@producto_p2
     
     return dp1, dp2
+
+#Toma 2 strings p1 y p2 códigos de país y un dataframe con la matriz insumo producto de p1 y p2
+#Devuelve el vector de demanda externa del pais p1 calculado usando el modelo de región simple
+def obtener_demanda_modelo_simple(p1,p2,data):
+    A_p1p1, A_p1p2, A_p2p2, A_p2p1, producto_p1, producto_p2 = generar_submatrices(p1, p2, data)
+    dp1 = producto_p1 - A_p1p1 @ producto_p1
+    return dp1
 
 #Toma un vector con los datos de la demanda externa de un país y un diccionario con los shocks a simular en cada sector de ese país.
 #Las claves del diccionario deben ser los sectores sobre los que se va a generar el shock, y los valores el porcentaje de shock. 
@@ -169,15 +182,37 @@ def variacion_produccion_modelo_complejo(Ap1p1, Ap1p2, Ap2p2, Ap2p1, variacion_d
     inv = inversaLU(L, U, P)
     return inv @ variacion_de_la_demanda
     
-data = '../data/matrizlatina2011_compressed_0.xlsx'
+# Genera el gráfico comparativo de la variación de la producción tras simular el shock, del modelo simple y el complejo
+def generar_grafico(p1, p2, data):
+    df = generar_Matriz_InsumoProducto(p1, p2, data)
+    dp1_complejo, dp2 = obtener_demanda_modelo_complejo(p1, p2, df)
+    dp1_simple = obtener_demanda_modelo_simple(p1,p2,df)
+    porcentaje_shock_sector = {5:-10,6:3.3,7:3.3, 8:3.3}
+    variacion_de_la_demanda_complejo = variacion_demanda(dp1_complejo, porcentaje_shock_sector)
+    variacion_de_la_demanda_simple = variacion_demanda(dp1_simple,porcentaje_shock_sector)
+    A_p1p1, A_p1p2, A_p2p2, A_p2p1, producto_p1, producto_p2 = generar_submatrices(p1, p2, df)
+    variacion_compleja = variacion_produccion_modelo_complejo(A_p1p1, A_p1p2, A_p2p2, A_p2p1, variacion_de_la_demanda_complejo )
+    variacion_simple = variacion_produccion_modelo_simple(A_p1p1,variacion_de_la_demanda_simple)
+    
+    sectores = np.arange(1,41)
+    
+    
+    fig , ax = plt.subplots()
+    ancho = 0.40
+    
+    ax.bar(sectores - ancho/2, variacion_simple, width=ancho,label='Modelo simple',color='blue')
+    ax.bar(sectores + ancho/2, variacion_compleja, width=ancho,label='Modelo interregional',color='orange')
+    ax.set_xlabel('Sectores')
+    ax.set_ylabel('Variación de la producción (en millones de US$) ')
+    ax.set_title('Variación de la producción tras el shock')
+    ax.set_xticks(sectores)
+    ax.set_xticklabels(sectores)
+    
+    ax.legend()
+    plt.show()
+    
+data = 'matrizlatina2011_compressed_0.xlsx'
 
 p1 ='SLV'
 p2= 'NIC'
-df = generar_Matriz_InsumoProducto(p1, p2, data)
-dp1, dp2 = obtener_demanda(p1, p2, df)
-porcentaje_sector = {5:-10,6:3.3,7:3.3, 8:3.3}
-
-A_p1p1, A_p1p2, A_p2p2, A_p2p1, producto_p1, producto_p2 = generar_submatrices(p1, p2, df)
-variacion_complejo = variacion_produccion_modelo_complejo(A_p1p1, A_p1p2, A_p2p2, A_p2p1, variacion_demanda(dp1, porcentaje_sector))
-variacion_simple = variacion_produccion_modelo_simple(A_p1p1,variacion_demanda(dp1, porcentaje_sector))
-
+generar_grafico(p1,p2,data)

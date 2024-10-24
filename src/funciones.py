@@ -7,6 +7,7 @@ import numpy as np
 from scipy.linalg import solve_triangular
 import pandas as pd
 import matplotlib.pyplot as plt
+import scipy.linalg as lng
 
 # Toma una matriz cuadrada de nxn y devuelve tres matrices L,U,P de nxn tales que PA = LU, 
 # donde L es triangular inferior, U es triangular superior y P es una matriz de permutación de filas que surge del pivoteo parcial
@@ -83,6 +84,49 @@ def resolver_ecuacion(T,S,es_inferior):
         X.append(columna_i_X)                                               # Agrego X(i) como fila a X
     return np.array(X).transpose()                                          # Traspongo X que tenia las columnas como filas 
 
+#Toma una matriz A en C^nxn, un vector columna inicial v en C^n y un natural n para las iteraciones 
+#Devuelve el mayor autovalor para n  (coeficiente de Rayleigh)
+def metodoPotencia(A, v, n):
+    v_k = v
+    for k in range(n):
+        v_k = A@v_k
+        v_k = (v_k )/lng.norm(v_k) 
+        r_k = (v_k.T @ A @ v_k ) / (v_k.T @ v_k)
+    return r_k         
 
-
+#Toma una matriz A en C^nxn y un natural n para las iteraciones que por defecto es 250
+#Devuelve el promedio de los autovalores de las n iteraciones de Monte Carlo de la matriz A y el desvío estándar
+def monteCarlo(A, n=250):
+    autovalores = []
+    for _ in range(n):
+        v = np.random.rand(A.shape[0])
+        autovalor = metodoPotencia(A, v, n)
+        autovalores.append(autovalor)
     
+    promedio = np.mean(autovalores)
+    desv_estandar = np.std(autovalores)
+    
+    return promedio, desv_estandar
+
+
+#%%
+A1 = np.array([
+    [0.186, 0.521, 0.014, 0.32,  0.134],
+    [0.24,  0.073, 0.219, 0.013, 0.327],
+    [0.098, 0.12,  0.311, 0.302, 0.208],
+    [0.173, 0.03,  0.133, 0.14,  0.074],
+    [0.303, 0.256, 0.323, 0.225, 0.257]
+])
+
+A2 = np.array([
+    [0.186, 0.521, 0.014, 0.32,  0.134],
+    [0.24,  0.073, 0.219, 0.013, 0.327],
+    [0.098, 0.12,  0.311, 0.302, 0.208],
+    [0.173, 0.03,  0.133, 0.14,  0.074],
+    [0.003, 0.256, 0.323, 0.225, 0.257]
+])
+promedio_A1, desviacion_A1 = monteCarlo(A1, 250)
+promedio_A2, desviacion_A2 = monteCarlo(A2, 250)
+
+print(f"A1 - Promedio: {promedio_A1}, Desviación Estándar: {desviacion_A1}")
+print(f"A2 - Promedio: {promedio_A2}, Desviación Estándar: {desviacion_A2}")

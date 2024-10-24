@@ -130,3 +130,53 @@ promedio_A2, desviacion_A2 = monteCarlo(A2, 250)
 
 print(f"A1 - Promedio: {promedio_A1}, Desviación Estándar: {desviacion_A1}")
 print(f"A2 - Promedio: {promedio_A2}, Desviación Estándar: {desviacion_A2}")
+
+#Toma una matriz A de mxm y un numero n entero mayor o igual a 0, y devuelve dos listas.
+# La lista normas_inversa tiene en la posicion i la norma de la inversa de I-A,  donde I-A 
+# se calcula con la serie de potencias hasta el exponente i de A, con 0<=i<=n 
+# La lista potencias guarda en el lugar i la potencia correspondiente al lugar i de normas_inversa
+def normas_de_series_de_potencias(A,n):
+    I_menos_A_inv = np.zeros((A.shape[0],A.shape[1]))
+    normas_inversa = []
+    potencias = []
+    for i in range(0,n+1):
+        I_menos_A_inv = I_menos_A_inv + np.linalg.matrix_power(A,i)
+        potencias.append(i)
+        norma = np.linalg.norm(I_menos_A_inv)
+        normas_inversa.append(norma)
+    return potencias,normas_inversa
+
+# gráficos
+X , Y = normas_de_series_de_potencias(A1,10)
+
+plt.plot(X,Y)
+plt.xlabel("Potencia máxima de A1")
+plt.ylabel("Norma 2 de (I-A1) inversa")
+plt.show()
+
+
+
+X , Y = normas_de_series_de_potencias(A1,100)
+
+plt.plot(X,Y)
+plt.xlabel("Potencia máxima de A1")
+plt.ylabel("Norma 2 de (I-A1) inversa")
+plt.show()
+    
+
+
+X , Y = normas_de_series_de_potencias(A2,10)
+
+plt.plot(X,Y)
+plt.xlabel("Potencia máxima de A2")
+plt.ylabel("Norma 2 de (I-A2) inversa")
+plt.show()
+
+
+
+X , Y = normas_de_series_de_potencias(A2,100)
+
+plt.plot(X,Y)
+plt.xlabel("Potencia máxima de A2")
+plt.ylabel("Norma 2 de (I-A2) inversa")
+plt.show()

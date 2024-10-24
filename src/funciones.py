@@ -21,7 +21,6 @@ def calcularLU(A):
     L = np.eye(n)
     P = np.eye(n)
     for i in range(n-1):                            # Recorro las filas de U hasta la anteúltima. 
-        print(i)
         pivot = U[i][i]                              
         fila_a_intercambiar = i                     # Acá voy a guardar el numero de fila que se debe intecambiar con la fila i 
         
@@ -109,28 +108,6 @@ def monteCarlo(A, n=250):
     return promedio, desv_estandar
 
 
-#%%
-A1 = np.array([
-    [0.186, 0.521, 0.014, 0.32,  0.134],
-    [0.24,  0.073, 0.219, 0.013, 0.327],
-    [0.098, 0.12,  0.311, 0.302, 0.208],
-    [0.173, 0.03,  0.133, 0.14,  0.074],
-    [0.303, 0.256, 0.323, 0.225, 0.257]
-])
-
-A2 = np.array([
-    [0.186, 0.521, 0.014, 0.32,  0.134],
-    [0.24,  0.073, 0.219, 0.013, 0.327],
-    [0.098, 0.12,  0.311, 0.302, 0.208],
-    [0.173, 0.03,  0.133, 0.14,  0.074],
-    [0.003, 0.256, 0.323, 0.225, 0.257]
-])
-promedio_A1, desviacion_A1 = monteCarlo(A1, 250)
-promedio_A2, desviacion_A2 = monteCarlo(A2, 250)
-
-print(f"A1 - Promedio: {promedio_A1}, Desviación Estándar: {desviacion_A1}")
-print(f"A2 - Promedio: {promedio_A2}, Desviación Estándar: {desviacion_A2}")
-
 #Toma una matriz A de mxm y un numero n entero mayor o igual a 0, y devuelve dos listas.
 # La lista normas_inversa tiene en la posicion i la norma de la inversa de I-A,  donde I-A 
 # se calcula con la serie de potencias hasta el exponente i de A, con 0<=i<=n 
@@ -146,37 +123,3 @@ def normas_de_series_de_potencias(A,n):
         normas_inversa.append(norma)
     return potencias,normas_inversa
 
-# gráficos
-X , Y = normas_de_series_de_potencias(A1,10)
-
-plt.plot(X,Y)
-plt.xlabel("Potencia máxima de A1")
-plt.ylabel("Norma 2 de (I-A1) inversa")
-plt.show()
-
-
-
-X , Y = normas_de_series_de_potencias(A1,100)
-
-plt.plot(X,Y)
-plt.xlabel("Potencia máxima de A1")
-plt.ylabel("Norma 2 de (I-A1) inversa")
-plt.show()
-    
-
-
-X , Y = normas_de_series_de_potencias(A2,10)
-
-plt.plot(X,Y)
-plt.xlabel("Potencia máxima de A2")
-plt.ylabel("Norma 2 de (I-A2) inversa")
-plt.show()
-
-
-
-X , Y = normas_de_series_de_potencias(A2,100)
-
-plt.plot(X,Y)
-plt.xlabel("Potencia máxima de A2")
-plt.ylabel("Norma 2 de (I-A2) inversa")
-plt.show()

@@ -123,3 +123,24 @@ def normas_de_series_de_potencias(A,n):
         normas_inversa.append(norma)
     return potencias,normas_inversa
 
+
+
+def metodo_potencia_hotelling(A,e):
+    x0 = np.random.rand(A.shape[0])
+    x0 = x0 / np.linalg.norm(x0,2)
+    xk = A @ x0 / np.linalg.norm(A @ x0,2)
+    i = 0
+    while True:
+        xk_1 = A @ xk / np.linalg.norm(A @ xk, 2)
+        if np.linalg.norm(xk_1 - xk,2) <= 1 - e or i > 10000:
+            xk = xk_1
+            break
+        else:
+            xk = xk_1
+            i += 1
+    rayleigh = xk.transpose() @ A @ xk / (xk.transpose() @ xk)
+    return xk, rayleigh 
+    
+
+
+

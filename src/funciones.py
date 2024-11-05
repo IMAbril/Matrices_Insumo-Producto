@@ -124,7 +124,11 @@ def normas_de_series_de_potencias(A,n):
     return potencias,normas_inversa
 
 
-
+# Toma una matriz A de nxn y un numero e con 0 < e < 1. 
+# Devuelve el autovalor de modulo máximo de A.
+# La función realiza el método de la potencia utilizando como criterio de parada que entre una iteracion
+# y la siguiente, la norma de la diferencia de los autovectores sea <= 1 - e. Se establece
+# un limite de iteraciones máximo por si el autovector comienza a oscilar.    
 def metodo_potencia_hotelling(A,e):
     x0 = np.random.rand(A.shape[0])
     x0 = x0 / np.linalg.norm(x0,2)
@@ -132,7 +136,7 @@ def metodo_potencia_hotelling(A,e):
     i = 0
     while True:
         xk_1 = A @ xk / np.linalg.norm(A @ xk, 2)
-        if np.linalg.norm(xk_1 - xk,2) <= 1 - e or i > 10000:
+        if np.linalg.norm(xk_1 - xk,2) <= 1 - e or i > 100000:
             xk = xk_1
             break
         else:

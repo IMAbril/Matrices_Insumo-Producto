@@ -136,7 +136,7 @@ def metodo_potencia_hotelling(A,e):
     i = 0
     while True:
         xk_1 = A @ xk / np.linalg.norm(A @ xk, 2)
-        if np.linalg.norm(xk_1 - xk,2) <= 1 - e or i > 100000:
+        if np.linalg.norm(xk_1 - xk,2) <= 1 - e :
             xk = xk_1
             break
         else:
@@ -147,4 +147,22 @@ def metodo_potencia_hotelling(A,e):
     
 
 
+# Toma una matriz A de n x 2 y dos listas rango_x y rango_y cada una con dos elementos. 
+# Devuelve una matriz de n x 3 que resulta igual a la matriz A, pero que solo preserva aquellas
+# filas donde la primera componente cae en el rango dado por rango_x, y la segunda en el rango dado 
+# por rango_y. Ademas, esta nueva matriz tiene una tercera componente en cada fila que indica a que
+# fila de la matriz A pertenecian las primeras dos componentes. 
+def filtrar_puntos(A,rango_x,rango_y):
+    X = []
+    Y = []
+    Z = []
+    for nro_fila, fila in enumerate(A):
+        x = fila[0]
+        y = fila[1]
+        if x >= rango_x[0] and x <= rango_x[1] and y >= rango_y[0] and y <= rango_y[1]:
+            X.append(x)
+            Y.append(y)
+            Z.append(nro_fila)
+    nueva_matriz = np.column_stack((X,Y,Z))
+    return nueva_matriz
 
